@@ -21,20 +21,23 @@ namespace NeuralNetworks
             XOR.Connect(XOR.map(1, 1), XOR.map(2, 0), -10f);
             
             Console.WriteLine("Input x1 = 0, x2 = 0 :");
-            XOR.SetInput(new int[] { 0, 0 });
-            XOR.FeedForward();
+            XOR.SetInput(new float[] { 0, 0 });
+            Console.WriteLine(Math.Round(XOR.FeedForward()));
 
             Console.WriteLine("Input x1 = 1, x2 = 0 :");
-            XOR.SetInput(new int[] { 1, 0 });
-            XOR.FeedForward();
+            XOR.SetInput(new float[] { 1, 0 });
+            Console.WriteLine(Math.Round(XOR.FeedForward()));
 
             Console.WriteLine("Input x1 = 0, x2 = 1 :");
-            XOR.SetInput(new int[] { 0, 1 });
-            XOR.FeedForward();
+            XOR.SetInput(new float[] { 0, 1 });
+            Console.WriteLine(Math.Round(XOR.FeedForward()));
 
             Console.WriteLine("Input x1 = 1, x2 = 1 :");
-            XOR.SetInput(new int[] { 1, 1 });
-            XOR.FeedForward();
+            XOR.SetInput(new float[] { 1, 1 });
+            Console.WriteLine(Math.Round(XOR.FeedForward()));
+
+            float cost = CostAndGradient.ComputeCost(XOR, new float[][] { new float[] { 0, 0 }, new float[] { 1, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[] { 0, 1, 1, 0 }, 0);
+            Console.WriteLine(cost);
 
             Console.ReadKey();
         }

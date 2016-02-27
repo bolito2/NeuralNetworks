@@ -44,7 +44,7 @@ namespace NeuralNetworks
         private int[] maxNodesPerLayer;
         public int L;
 
-        int totalNodes = 0;
+        public int totalNodes = 0;
 
         public NeuralNetwork(int L, int[] maxNodesPerLayer)
         {
@@ -75,7 +75,7 @@ namespace NeuralNetworks
             connections[inputId, outputId] = new Connection(weight);
         }
 
-        public void SetInput(int[] values)
+        public void SetInput(float[] values)
         {
             for(int i = 1; i < maxNodesPerLayer[0]; i++)
             {
@@ -83,7 +83,7 @@ namespace NeuralNetworks
             }
         }
 
-        public void FeedForward()
+        public float FeedForward()
         {
             for(int l = 1; l < L; l++)
             {
@@ -101,11 +101,8 @@ namespace NeuralNetworks
                         nodes[l, n].value = sigmoid(nodes[l, n].value);
                     }
             }
-            //Prototipo
-            if (nodes[L - 1, 0].value > 0.5)
-                Console.WriteLine("Result of FeedForward is 1");
-            else
-                Console.WriteLine("Result of FeedForward is 0");
+
+            return nodes[L - 1, 0].value;
         }
 
         public int map(int layer, int lid)
