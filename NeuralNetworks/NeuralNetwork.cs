@@ -46,7 +46,10 @@ namespace NeuralNetworks
 
         public int totalNodes = 0;
 
-        public NeuralNetwork(int L, int[] maxNodesPerLayer)
+        Random random = new Random();
+        const float eps = 0.04f;
+
+        public NeuralNetwork(int L, int[] maxNodesPerLayer, bool startConnected)
         {
             this.L = L;
             this.maxNodesPerLayer = maxNodesPerLayer;
@@ -69,6 +72,20 @@ namespace NeuralNetworks
                 }
             }
             connections = new Connection[totalNodes, totalNodes];
+
+            if (startConnected)
+            {
+                for(int c1 = 0; c1 < totalNodes; c1++)
+                {
+                    for (int c2 = 0; c2 < totalNodes; c2++)
+                    {
+                        if(layer(c2) == L -1 || lid(c2) != 0)
+                        {
+                            connections[c1, c2] = new Connection((float)(-eps + 2*eps*random.NextDouble()));
+                        }
+                    }
+                }
+            }
         }
         public void Connect(int inputId, int outputId, float weight)
         {
@@ -81,6 +98,44 @@ namespace NeuralNetworks
             {
                 nodes[0, i].value = values[i - 1];
             }
+        }
+
+        public float ComputeCost(float[][] input, float[] output, float lambda)
+        {
+            float J = 0;
+            float h = 0;
+            for (int i = 0; i < output.Length; i++)
+            {
+                SetInput(input[i]);
+                h = FeedForward();
+
+                //Without reg
+                J += (float)(output[i] * Math.Log(h) + (1 - output[i]) * Math.Log(1 - h));
+            }
+            J /= -output.Length;
+
+            //reg
+            float reg = 0;
+            for (int c1 = 0; c1 < totalNodes; c1++)
+            {
+                for (int c2 = 0; c2 < totalNodes; c2++)
+                {
+                    if (connections[c1, c2].active)
+                    {
+                        reg += (float)Math.Pow(connections[c1, c2].weight, 2);
+                    }
+                }
+            }
+            reg *= lambda / (2 * output.Length);
+
+            J += reg;
+
+            return J;
+        }
+
+        public void BackPropagation(float lambda)
+        {
+
         }
 
         public float FeedForward()

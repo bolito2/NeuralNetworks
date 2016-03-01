@@ -11,7 +11,8 @@ namespace NeuralNetworks
         static void Main(string[] args)
         {
             //Ejemplo(XOR)
-            NeuralNetwork XOR = new NeuralNetwork(3, new int[] {3, 2, 1 });
+            ///*
+            NeuralNetwork XOR = new NeuralNetwork(3, new int[] {3, 2, 1 }, true);
 
             XOR.Connect(XOR.map(0, 0), XOR.map(1, 1), -45f);
             XOR.Connect(XOR.map(0, 1), XOR.map(1, 1), 30f);
@@ -35,9 +36,11 @@ namespace NeuralNetworks
             Console.WriteLine("Input x1 = 1, x2 = 1 :");
             XOR.SetInput(new float[] { 1, 1 });
             Console.WriteLine(Math.Round(XOR.FeedForward()));
-
-            float cost = CostAndGradient.ComputeCost(XOR, new float[][] { new float[] { 0, 0 }, new float[] { 1, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[] { 0, 1, 1, 0 }, 0);
+            
+            float cost = XOR.ComputeCost(new float[][] { new float[] { 0, 0 }, new float[] { 1, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[] { 0, 1, 1, 0 }, 0);
             Console.WriteLine(cost);
+            //*/
+
 
             Console.ReadKey();
         }
