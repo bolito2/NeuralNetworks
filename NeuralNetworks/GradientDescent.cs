@@ -6,13 +6,22 @@ using System.Threading.Tasks;
 
 namespace NeuralNetworks
 {
-    class GradientDescent
+    public class GradientDescent
     {
-        public delegate float Gradient(float[][] input, float[] output,float[] theta,float lambda);
+        public delegate float[] Gradient(float[][] input, float[] output,float[] theta,float lambda);
+        public delegate float Cost(float[][] input, float[] output, float[] theta, float lambda);
 
-        public static void Start(Gradient gradient, float[] initialTheta, float learningRate)
+        public static void Start(Gradient gradient, Cost cost, float[][] input, float[] output, ref float[] theta, float learningRate, float lambda, int numIter)
         {
-            
+            for(int iter = 0; iter < numIter; iter++)
+            {
+                Console.WriteLine("Cost at iter " + iter + " = " + cost(input, output, theta, lambda));
+                float[] grad = gradient(input, output, theta, lambda);
+                for(int j = 0; j < theta.Length; j++)
+                {
+                    theta[j] += learningRate * grad[j];
+                }
+            }
         }
     }
 }
