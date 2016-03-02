@@ -13,15 +13,17 @@ namespace NeuralNetworks
 
         public static void Start(Gradient gradient, Cost cost, float[][] input, float[] output, ref float[] theta, float learningRate, float lambda, int numIter)
         {
-            for(int iter = 0; iter < numIter; iter++)
+            float initJ = cost(input, output, theta, lambda);
+            for (int iter = 0; iter < numIter; iter++)
             {
-                Console.WriteLine("Cost at iter " + iter + " = " + cost(input, output, theta, lambda));
+                //Console.WriteLine("Cost at iter " + iter + " = " + cost(input, output, theta, lambda));
                 float[] grad = gradient(input, output, theta, lambda);
                 for(int j = 0; j < theta.Length; j++)
                 {
                     theta[j] += learningRate * grad[j];
                 }
             }
+            Console.WriteLine("Cost : " + initJ + "->" + cost(input, output, theta, lambda));
         }
     }
 }

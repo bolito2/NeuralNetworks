@@ -37,37 +37,88 @@ namespace NeuralNetworks
         //Input id, output id
         public Connection[,] connections;
         //Layer, lid
-        public Node[,] nodes;
-
         public int nextId = 0;
 
         private int[] maxNodesPerLayer;
         public int L;
 
+        public Node[][] nodes;
+
         public int totalNodes = 0;
 
         Random random = new Random();
-        const float eps = 0.04f;
+        const float eps = 0.4f;
 
-        public NeuralNetwork(int L, int[] maxNodesPerLayer, bool startConnected)
+        public float[] unrollConnections()
         {
-            this.L = L;
-            this.maxNodesPerLayer = maxNodesPerLayer;
+            float[][] thetas = new float[L - 1][];
+            int size = 0;
+            for(int l = 0; l < L - 1; l++)
+            {
+                thetas[l] = new float[maxNodesPerLayer[l] * (maxNodesPerLayer[l + 1] - 1)];
+                size += maxNodesPerLayer[l] * (maxNodesPerLayer[l + 1] - 1);
+                int contador = 0;
+                for (int n1 = 0; n1 < maxNodesPerLayer[l]; n1++)
+                {
+                    for (int n2 = 1; n2 < maxNodesPerLayer[l + 1]; n2++)
+                    {
+                        thetas[l][contador] = connections[map(l, n1), map(l + 1, n2)].weight;
+                        contador++;
+                    }
+                }
+            }
+            float[] theta = new float[size];
+            int cont = 0;
+            for(int l = 0; l < L - 1; l++)
+            {
+                for(int i = 0; i < maxNodesPerLayer[l] * (maxNodesPerLayer[l + 1] - 1); i++)
+                {
+                    theta[cont] = thetas[l][i];
+                    cont++;
+                }
+            }
+            return theta;
+        }
 
-            nodes = new Node[L, maxNodesPerLayer.Max()];
+        public void rollConnections(float[] theta)
+        {
+            int cont = 0;
+            for(int l = 0; l < L - 1; l++)
+            {
+                for(int n1 = 0; n1 < maxNodesPerLayer[l]; n1++)
+                {
+                    for (int n2 = 1; n2 < maxNodesPerLayer[l + 1]; n2++)
+                    {
+                        connections[map(l, n1), map(l + 1, n2)].weight = theta[cont];
+                        cont++;
+                    }
+                }
+            }
+        }
+
+        public NeuralNetwork(int[] maxNodesPerLayer, bool startConnected = true)
+        {
+            this.maxNodesPerLayer = maxNodesPerLayer;
+            L = maxNodesPerLayer.Length;
+
+            nodes = new Node[L][];
+            for(int l = 0; l < L; l++)
+            {
+                nodes[l] = new Node[maxNodesPerLayer[l]];
+            }
             
             for(int l = 0; l < L; l++)
             {
                 for(int n = 0; n < maxNodesPerLayer[l]; n++)
                 {
                     totalNodes++;
-                    nodes[l, n].id = nextId;
+                    nodes[l][n].id = nextId;
                     nextId++;
 
                     if (l != L - 1 && n == 0)
                     {
-                        nodes[l, 0].value = 1;
-                        nodes[l, 0].bias = true;
+                        nodes[l][0].value = 1;
+                        nodes[l][0].bias = true;
                     }
                 }
             }
@@ -79,9 +130,9 @@ namespace NeuralNetworks
                 {
                     for (int c2 = 0; c2 < totalNodes; c2++)
                     {
-                        if(layer(c2) == L -1 || lid(c2) != 0)
+                        if((layer(c2) == L -1 || lid(c2) != 0) && (c1 != c2))
                         {
-                            connections[c1, c2] = new Connection((float)(-eps + 2*eps*random.NextDouble()));
+                            connections[c1, c2] = new Connection((float)(eps*random.NextDouble() - eps * random.NextDouble()));
                         }
                     }
                 }
@@ -96,7 +147,7 @@ namespace NeuralNetworks
         {
             for(int i = 1; i < maxNodesPerLayer[0]; i++)
             {
-                nodes[0, i].value = values[i - 1];
+                nodes[0][i].value = values[i - 1];
             }
         }
 
@@ -146,23 +197,23 @@ namespace NeuralNetworks
                 {
                     for(int c = 0; c < totalNodes; c++)
                     {
-                        if (connections[c, map(l, n)].active && !nodes[l, n].bias)
+                        if (connections[c, map(l, n)].active && !nodes[l][n].bias)
                         {
                             //Console.WriteLine("Conexion entre l:" + l + ", nodo:" + n + " y l:" + layer(c) + ", nodo:" + lid(c));
-                            nodes[l, n].value += connections[c, map(l, n)].weight * nodes[layer(c), lid(c)].value;
+                            nodes[l][n].value += connections[c, map(l, n)].weight * nodes[layer(c)][lid(c)].value;
                         }
                     }
-                    if(!nodes[l, n].bias)
-                        nodes[l, n].value = sigmoid(nodes[l, n].value);
+                    if(!nodes[l][n].bias)
+                        nodes[l][n].value = sigmoid(nodes[l][n].value);
                     }
             }
 
-            return nodes[L - 1, 0].value;
+            return nodes[L - 1][0].value;
         }
 
         public int map(int layer, int lid)
         {
-            return nodes[layer, lid].id;
+            return nodes[layer][lid].id;
         }
 
         public int layer(int id)
@@ -171,7 +222,7 @@ namespace NeuralNetworks
             {
                 for(int n = 0; n < maxNodesPerLayer[l]; n++)
                 {
-                    if(nodes[l, n].id == id)
+                    if(nodes[l][n].id == id)
                     {
                         return l;
                     }
@@ -186,7 +237,7 @@ namespace NeuralNetworks
             {
                 for (int n = 0; n < maxNodesPerLayer[l]; n++)
                 {
-                    if (nodes[l, n].id == id)
+                    if (nodes[l][n].id == id)
                     {
                         return n;
                     }

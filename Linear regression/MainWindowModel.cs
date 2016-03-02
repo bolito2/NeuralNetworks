@@ -116,7 +116,7 @@ namespace Linear_regression
             float[] theta = new float[n];
 
             //TODO: Calcular hipotesis pambi
-            GradientDescent.Start(RegressionGradient, RegressionCost,input, output,ref theta, .02f, 1, 1000);
+            GradientDescent.Start(RegressionGradient, RegressionCost,input, output,ref theta, .000125f, 0, 500000);
             //
             int steps = 50;
 
