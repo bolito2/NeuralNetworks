@@ -20,26 +20,14 @@ namespace NeuralNetworks
             bias = false;
         }
     }
-
-    public struct Connection
-    {
-        public float weight;
-        public bool active;
-
-        public Connection(float weight)
-        {
-            this.weight = weight;
-            active = true;
-        }
-    }
     public class NeuralNetwork
     {
         //Input id, output id
-        public Connection[,] connections;
+        public float[][,] connections;
         //Layer, lid
         public int nextId = 0;
 
-        private int[] maxNodesPerLayer;
+        public int[] maxNodesPerLayer;
         public int L;
 
         public Node[][] nodes;
@@ -48,53 +36,175 @@ namespace NeuralNetworks
 
         Random random = new Random();
         const float eps = 0.4f;
+        const float lim = 0.0001f;
 
-        public float[] unrollConnections()
+        float[][,] addToTheta(float[][,] Theta,float add)
         {
-            float[][] thetas = new float[L - 1][];
-            int size = 0;
+            float[][,] addCons = new float[L - 1][,];
+
             for(int l = 0; l < L - 1; l++)
             {
-                thetas[l] = new float[maxNodesPerLayer[l] * (maxNodesPerLayer[l + 1] - 1)];
-                size += maxNodesPerLayer[l] * (maxNodesPerLayer[l + 1] - 1);
-                int contador = 0;
-                for (int n1 = 0; n1 < maxNodesPerLayer[l]; n1++)
+                addCons[l] = new float[maxNodesPerLayer[l], maxNodesPerLayer[l + 1]];
+                for (int i = 0; i < maxNodesPerLayer[l]; i++)
                 {
-                    for (int n2 = 1; n2 < maxNodesPerLayer[l + 1]; n2++)
+                    for (int j = 0; j < maxNodesPerLayer[l + 1]; j++)
                     {
-                        thetas[l][contador] = connections[map(l, n1), map(l + 1, n2)].weight;
-                        contador++;
+                        if(!nodes[l + 1][j].bias)
+                            addCons[l][i, j] = Theta[l][i, j] + add;
                     }
                 }
             }
-            float[] theta = new float[size];
+
+            return addCons;
+        }
+        float[][,] addToTheta(float[][,] Theta, float add, int layer, int input, int output)
+        {
+            float[][,] addCons = new float[L - 1][,];
+
+            for (int l = 0; l < L - 1; l++)
+            {
+                addCons[l] = new float[maxNodesPerLayer[l], maxNodesPerLayer[l + 1]];
+                for (int i = 0; i < maxNodesPerLayer[l]; i++)
+                {
+                    for (int j = 0; j < maxNodesPerLayer[l + 1]; j++)
+                    {
+                        if (!nodes[l + 1][j].bias)
+                        {
+                            if (l == layer && i == input && j == output)
+                                addCons[l][i, j] = Theta[l][i, j] + add;
+                            else
+                                addCons[l][i, j] = Theta[l][i, j];
+                        }
+                    }
+                }
+            }
+
+            return addCons;
+        }
+        float lol = 0;
+        int xd = 0;
+        public float[] gradient(float[][] input, float[] output, float[] theta,float lambda)
+        {
+            float[][,] Theta = rollConnections(theta);
+
+            float[][] delta = new float[L][];
+            float[] grad = new float[totalConnections];
+
+            int contador = 0;
+
+            delta[L - 1] = new float[maxNodesPerLayer[L - 1]];
+
+            for (int s = 0; s < output.Length; s++)
+            {
+                SetInput(input[s]);
+                float h = FeedForward(Theta);
+
+                delta[L - 1][0] = h - output[s];
+
+                //BackPropagate delta
+                for (int l = L - 2; l > 0; l--)
+                {
+                    delta[l] = new float[maxNodesPerLayer[l]];
+                    for(int i = Convert.ToInt32(nodes[l][0].bias); i < maxNodesPerLayer[l]; i++)
+                    {
+                        for(int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
+                        {
+                            delta[l][i] += delta[l + 1][j] * Theta[l][i, j];
+                        }
+                        delta[l][i] *= nodes[l][i].value * (1 - nodes[l][i].value);
+                    }
+                }
+                contador = 0;
+                for(int l = 0; l < L - 1; l++)
+                {
+                    
+                    for (int i = 0; i < maxNodesPerLayer[l]; i++)
+                    {
+                        //contador += Convert.ToInt32(nodes[l + 1][0].bias);
+                        for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
+                        {
+                            SetInput(input[s]);
+                            grad[contador] += delta[l + 1][j] * nodes[l][i].value;
+                            contador++;
+                        }
+                    }
+                }
+                contador = 0;
+            }
+
+            for(int g = 0; g < grad.Length; g++)
+            {
+                grad[g] /= -output.Length;
+
+                //Console.WriteLine("Gradient computed : " + grad[g] + ", Gradient expected : " + check[g]);
+            }
+            //Console.WriteLine("/////");
+            for (int g = 0; g < theta.Length; g++)
+            {
+                //Console.WriteLine("Theta#" + g +": " + theta[g]);
+            }
+
+            return grad;
+        }
+
+        public float[] unrollConnections()
+        {
+            float[] theta = new float[totalConnections];
             int cont = 0;
             for(int l = 0; l < L - 1; l++)
             {
-                for(int i = 0; i < maxNodesPerLayer[l] * (maxNodesPerLayer[l + 1] - 1); i++)
+                for(int i = 0; i < maxNodesPerLayer[l]; i++)
                 {
-                    theta[cont] = thetas[l][i];
-                    cont++;
+                    for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
+                    {
+                        theta[cont] = connections[l][i, j];
+                        cont++;
+                    }
                 }
             }
             return theta;
         }
 
-        public void rollConnections(float[] theta)
+        public float[] unrollConnections(float[][,] connections)
         {
+            float[] theta = new float[totalConnections];
             int cont = 0;
-            for(int l = 0; l < L - 1; l++)
+            for (int l = 0; l < L - 1; l++)
             {
-                for(int n1 = 0; n1 < maxNodesPerLayer[l]; n1++)
+                for (int i = 0; i < maxNodesPerLayer[l]; i++)
                 {
-                    for (int n2 = 1; n2 < maxNodesPerLayer[l + 1]; n2++)
+                    for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
                     {
-                        connections[map(l, n1), map(l + 1, n2)].weight = theta[cont];
+                        theta[cont] = connections[l][i, j];
                         cont++;
                     }
                 }
             }
+            return theta;
         }
+
+        public float[][,] rollConnections(float[] theta)
+        {
+            float[][,] result = new float[L - 1][,];
+
+            int cont = 0;
+            for(int l = 0; l < L - 1; l++)
+            {
+                result[l] = new float[maxNodesPerLayer[l], maxNodesPerLayer[l + 1]];
+                for(int i = 0; i < maxNodesPerLayer[l]; i++)
+                {
+                    for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
+                    {
+                        result[l][i, j] = theta[cont];
+                        cont++;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        int totalConnections = 0;
 
         public NeuralNetwork(int[] maxNodesPerLayer, bool startConnected = true)
         {
@@ -122,25 +232,31 @@ namespace NeuralNetworks
                     }
                 }
             }
-            connections = new Connection[totalNodes, totalNodes];
+            connections = new float[L - 1][,];
+
+            for(int l = 0; l < L - 1; l++)
+            {
+                connections[l] = new float[maxNodesPerLayer[l], maxNodesPerLayer[l + 1]];
+                totalConnections += maxNodesPerLayer[l] * maxNodesPerLayer[l + 1];
+            }
 
             if (startConnected)
             {
-                for(int c1 = 0; c1 < totalNodes; c1++)
+                for(int l = 0; l < L - 1; l++)
                 {
-                    for (int c2 = 0; c2 < totalNodes; c2++)
+                    for (int i = 0; i < maxNodesPerLayer[l]; i++)
                     {
-                        if((layer(c2) == L -1 || lid(c2) != 0) && (c1 != c2))
+                        for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
                         {
-                            connections[c1, c2] = new Connection((float)(eps*random.NextDouble() - eps * random.NextDouble()));
+                            connections[l][i, j] = (float)(eps * random.NextDouble() - eps * random.NextDouble());
                         }
                     }
                 }
             }
         }
-        public void Connect(int inputId, int outputId, float weight)
+        public void Connect(int layer, int input, int output,float weight)
         {
-            connections[inputId, outputId] = new Connection(weight);
+            connections[layer][input, output] = weight;
         }
 
         public void SetInput(float[] values)
@@ -151,99 +267,67 @@ namespace NeuralNetworks
             }
         }
 
-        public float ComputeCost(float[][] input, float[] output, float lambda)
+        public float ComputeCost(float[][] input, float[] output, float[] theta, float lambda)
         {
+            float[][,] Theta = rollConnections((float[])theta.Clone());
+
             float J = 0;
             float h = 0;
             for (int i = 0; i < output.Length; i++)
             {
                 SetInput(input[i]);
-                h = FeedForward();
+                h = FeedForward(Theta);
 
                 //Without reg
                 J += (float)(output[i] * Math.Log(h) + (1 - output[i]) * Math.Log(1 - h));
             }
             J /= -output.Length;
 
-            //reg
-            float reg = 0;
-            for (int c1 = 0; c1 < totalNodes; c1++)
+            if (lambda > 0)
             {
-                for (int c2 = 0; c2 < totalNodes; c2++)
+                //reg
+                float reg = 0;
+                for (int l = 0; l < L - 1; l++)
                 {
-                    if (connections[c1, c2].active)
+                    for (int i = 0; i < maxNodesPerLayer[l]; i++)
                     {
-                        reg += (float)Math.Pow(connections[c1, c2].weight, 2);
+                        for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
+                        {
+                            reg += (float)Math.Pow(Theta[l][i, j], 2);
+                        }
                     }
                 }
-            }
-            reg *= lambda / (2 * output.Length);
+                reg *= lambda / (2 * output.Length);
 
-            J += reg;
+                J += reg;
+            }
 
             return J;
         }
-
-        public void BackPropagation(float lambda)
+        public void BackPropagation(float[][] input, float[] output, float learningRate,float lambda, int maxIter)
         {
-
+            float[] theta = unrollConnections();
+            GradientDescent.Start(gradient, ComputeCost, input, output, ref theta, learningRate, lambda, maxIter);
+            connections = rollConnections(theta);
         }
 
-        public float FeedForward()
-        {
-            for(int l = 1; l < L; l++)
+        public float FeedForward(float[][,] connections)
+        {                     
+            for (int l = 0; l < L - 1; l++)
             {
-                for(int n = 0; n < maxNodesPerLayer[l]; n++)
+                for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
                 {
-                    for(int c = 0; c < totalNodes; c++)
+                    nodes[l + 1][j].value = 0;
+                    for (int i = 0; i < maxNodesPerLayer[l]; i++)
                     {
-                        if (connections[c, map(l, n)].active && !nodes[l][n].bias)
-                        {
-                            //Console.WriteLine("Conexion entre l:" + l + ", nodo:" + n + " y l:" + layer(c) + ", nodo:" + lid(c));
-                            nodes[l][n].value += connections[c, map(l, n)].weight * nodes[layer(c)][lid(c)].value;
-                        }
+                        nodes[l + 1][j].value += nodes[l][i].value * connections[l][i, j];
                     }
-                    if(!nodes[l][n].bias)
-                        nodes[l][n].value = sigmoid(nodes[l][n].value);
-                    }
+
+                    nodes[l + 1][j].value = sigmoid(nodes[l + 1][j].value);
+                }
             }
 
             return nodes[L - 1][0].value;
-        }
-
-        public int map(int layer, int lid)
-        {
-            return nodes[layer][lid].id;
-        }
-
-        public int layer(int id)
-        {
-            for(int l = 0; l < L; l++)
-            {
-                for(int n = 0; n < maxNodesPerLayer[l]; n++)
-                {
-                    if(nodes[l][n].id == id)
-                    {
-                        return l;
-                    }
-                }
-            }
-            return -1;
-        }
-
-        public int lid(int id)
-        {
-            for (int l = 0; l < L; l++)
-            {
-                for (int n = 0; n < maxNodesPerLayer[l]; n++)
-                {
-                    if (nodes[l][n].id == id)
-                    {
-                        return n;
-                    }
-                }
-            }
-            return -1;
         }
         public float sigmoid(float z)
         {
