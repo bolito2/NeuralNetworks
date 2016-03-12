@@ -14,10 +14,52 @@ namespace NeuralNetworks
 
             //RollingExample();
 
-            backPropagationExample();
+            //backPropagationExample();
 
+            invertInput();
 
             Console.ReadKey();
+        }
+
+        static void invertInput()
+        {
+            NeuralNetwork inv = new NeuralNetwork(new int[] {3, 2});
+            float[][] input = new float[][] { new float[] { 0, 0 }, new float[] { 1, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } };
+            float[][] output = new float[][] { new float[] { 1, 1 }, new float[] { 0, 1 }, new float[] { 1, 0 }, new float[] { 0, 0 } };
+            inv.BackPropagation(input, output, 1f, 0, 5000);
+
+            /*
+            inv.Connect(0, 0, 0, 10f);
+            inv.Connect(0, 0, 1, 10f);
+
+            inv.Connect(0, 1, 0, -50f);
+            inv.Connect(0, 2, 1, -50f);
+
+            inv.SetInput(new float[] { 0, 0 });
+            float[] result1 = inv.FeedForward();
+            Console.WriteLine("first output: " + result1[0]);
+            Console.WriteLine("second output: " + result1[1]);
+            Console.WriteLine("//////");
+
+            inv.SetInput(new float[] { 1, 0 });
+            float[] result2 = inv.FeedForward();
+            Console.WriteLine("first output: " + result2[0]);
+            Console.WriteLine("second output: " + result2[1]);
+            Console.WriteLine("//////");
+
+            inv.SetInput(new float[] { 0, 1 });
+            float[] result3 = inv.FeedForward();
+            Console.WriteLine("first output: " + result3[0]);
+            Console.WriteLine("second output: " + result3[1]);
+            Console.WriteLine("//////");
+
+            inv.SetInput(new float[] { 1, 1 });
+            float[] result4 = inv.FeedForward();
+            Console.WriteLine("first output: " + result4[0]);
+            Console.WriteLine("second output: " + result4[1]);
+            Console.WriteLine("//////");
+
+            */
         }
 
         static void backPropagationExample()
@@ -25,7 +67,7 @@ namespace NeuralNetworks
             NeuralNetwork example = new NeuralNetwork(new int[] { 3, 3, 1 });
 
             //gradientNetwork.gradient(new float[][] { new float[] { 1, 0 }, new float[] { 0, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[] { 0, 0, 0, 1 }, gradientNetwork.unrollConnections(gradientNetwork.connections), 0);
-            example.BackPropagation(new float[][] { new float[]{1, 0}, new float[] { 0, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[] { 1, 0, 1, 0 }, 7f, 0, 5000);
+            example.BackPropagation(new float[][] { new float[]{1, 0}, new float[] { 0, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[][] { new float[]{ 1}, new float[] {0}, new float[] {1}, new float[] {0 } }, 7f, 0, 5000);
 
             for(int l = 0; l < example.L - 1; l++)
             {
@@ -55,21 +97,21 @@ namespace NeuralNetworks
 
             Console.WriteLine("Input x1 = 0, x2 = 0 :");
             XOR.SetInput(new float[] { 0, 0 });
-            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)));
+            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)[0]));
 
             Console.WriteLine("Input x1 = 1, x2 = 0 :");
             XOR.SetInput(new float[] { 1, 0 });
-            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)));
+            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)[0]));
 
             Console.WriteLine("Input x1 = 0, x2 = 1 :");
             XOR.SetInput(new float[] { 0, 1 });
-            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)));
+            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)[0]));
 
             Console.WriteLine("Input x1 = 1, x2 = 1 :");
             XOR.SetInput(new float[] { 1, 1 });
-            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)));
+            Console.WriteLine(Math.Round(XOR.FeedForward(XOR.connections)[0]));
 
-            float cost = XOR.ComputeCost(new float[][] { new float[] { 0, 0 }, new float[] { 1, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[] { 0, 1, 1, 0 }, XOR.unrollConnections(XOR.connections), 0);
+            float cost = XOR.ComputeCost(new float[][] { new float[] { 0, 0 }, new float[] { 1, 0 }, new float[] { 0, 1 }, new float[] { 1, 1 } }, new float[][] { new float[] { 0}, new float[] {1}, new float[] {1}, new float[] { 0 } }, XOR.unrollConnections(XOR.connections), 0);
             Console.WriteLine(cost);
         }
 

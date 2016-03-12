@@ -8,10 +8,10 @@ namespace NeuralNetworks
 {
     public class GradientDescent
     {
-        public delegate float[] Gradient(float[][] input, float[] output,float[] theta,float lambda);
-        public delegate float Cost(float[][] input, float[] output, float[] theta, float lambda);
+        public delegate float[] Gradient(float[][] input, float[][] output,float[] theta,float lambda);
+        public delegate float Cost(float[][] input, float[][] output, float[] theta, float lambda);
 
-        public static void Start(Gradient gradient, Cost cost, float[][] input, float[] output, ref float[] theta, float learningRate, float lambda, int numIter)
+        public static void Start(Gradient gradient, Cost cost, float[][] input, float[][] output, ref float[] theta, float learningRate, float lambda, int numIter)
         {
             float initJ = cost(input, output, theta, lambda);
             for (int iter = 0; iter < numIter; iter++)
@@ -22,6 +22,7 @@ namespace NeuralNetworks
                 {
                     theta[j] += learningRate * grad[j];
                 }
+                //Console.WriteLine(theta[1]);
             }
             Console.WriteLine("Cost : " + initJ + "->" + cost(input, output, theta, lambda));
         }

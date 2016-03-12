@@ -81,9 +81,8 @@ namespace NeuralNetworks
 
             return addCons;
         }
-        float lol = 0;
-        int xd = 0;
-        public float[] gradient(float[][] input, float[] output, float[] theta,float lambda)
+
+        public float[] gradient(float[][] input, float[][] output, float[] theta,float lambda)
         {
             float[][,] Theta = rollConnections(theta);
 
@@ -97,9 +96,12 @@ namespace NeuralNetworks
             for (int s = 0; s < output.Length; s++)
             {
                 SetInput(input[s]);
-                float h = FeedForward(Theta);
+                float[] h = FeedForward(Theta);
 
-                delta[L - 1][0] = h - output[s];
+                for(int j = 0; j < maxNodesPerLayer[L - 1]; j++)
+                {
+                    delta[L - 1][j] = h[j] - output[s][j];
+                }
 
                 //BackPropagate delta
                 for (int l = L - 2; l > 0; l--)
@@ -116,8 +118,7 @@ namespace NeuralNetworks
                 }
                 contador = 0;
                 for(int l = 0; l < L - 1; l++)
-                {
-                    
+                {                   
                     for (int i = 0; i < maxNodesPerLayer[l]; i++)
                     {
                         //contador += Convert.ToInt32(nodes[l + 1][0].bias);
@@ -267,19 +268,23 @@ namespace NeuralNetworks
             }
         }
 
-        public float ComputeCost(float[][] input, float[] output, float[] theta, float lambda)
+        public float ComputeCost(float[][] input, float[][] output, float[] theta, float lambda)
         {
             float[][,] Theta = rollConnections((float[])theta.Clone());
 
             float J = 0;
-            float h = 0;
+            float[] h = new float[maxNodesPerLayer[L - 1]];
+            
             for (int i = 0; i < output.Length; i++)
             {
                 SetInput(input[i]);
                 h = FeedForward(Theta);
 
                 //Without reg
-                J += (float)(output[i] * Math.Log(h) + (1 - output[i]) * Math.Log(1 - h));
+                for(int j = 0; j < maxNodesPerLayer[L - 1]; j++)
+                {
+                    J += (float)(output[i][j] * Math.Log(h[j]) + (1 - output[i][j]) * Math.Log(1 - h[j]));
+                }
             }
             J /= -output.Length;
 
@@ -304,14 +309,14 @@ namespace NeuralNetworks
 
             return J;
         }
-        public void BackPropagation(float[][] input, float[] output, float learningRate,float lambda, int maxIter)
+        public void BackPropagation(float[][] input, float[][] output, float learningRate,float lambda, int maxIter)
         {
             float[] theta = unrollConnections();
             GradientDescent.Start(gradient, ComputeCost, input, output, ref theta, learningRate, lambda, maxIter);
             connections = rollConnections(theta);
         }
 
-        public float FeedForward(float[][,] connections)
+        public float[] FeedForward(float[][,] connections)
         {                     
             for (int l = 0; l < L - 1; l++)
             {
@@ -327,8 +332,39 @@ namespace NeuralNetworks
                 }
             }
 
-            return nodes[L - 1][0].value;
+            float[] values = new float[maxNodesPerLayer[L - 1]];
+            for(int v = 0; v < maxNodesPerLayer[L - 1]; v++)
+            {
+                values[v] = nodes[L - 1][v].value;
+            }
+
+            return values;
         }
+        public float[] FeedForward()
+        {
+            for (int l = 0; l < L - 1; l++)
+            {
+                for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
+                {
+                    nodes[l + 1][j].value = 0;
+                    for (int i = 0; i < maxNodesPerLayer[l]; i++)
+                    {
+                        nodes[l + 1][j].value += nodes[l][i].value * connections[l][i, j];
+                    }
+
+                    nodes[l + 1][j].value = sigmoid(nodes[l + 1][j].value);
+                }
+            }
+
+            float[] values = new float[maxNodesPerLayer[L - 1]];
+            for (int v = 0; v < maxNodesPerLayer[L - 1]; v++)
+            {
+                values[v] = nodes[L - 1][v].value;
+            }
+
+            return values;
+        }
+
         public float sigmoid(float z)
         {
             return (float)(1 / (1 + Math.Exp(-z)));

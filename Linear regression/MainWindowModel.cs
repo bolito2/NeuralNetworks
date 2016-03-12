@@ -12,10 +12,9 @@ namespace Linear_regression
 
     public class MainWindowModel
     { 
-        public float RegressionCost(float[][] input, float[] output, float[] theta, float lambda)
+        public float RegressionCost(float[][] input, float[][] output, float[] theta, float lambda)
         {
             float J = 0;
-
             for(int i = 0; i < output.Length; i++)
             {
                 float prediction = 0;
@@ -23,8 +22,7 @@ namespace Linear_regression
                 {
                     prediction += input[i][j] * theta[j];
                 }
-
-                J += (float)Math.Pow(output[i] - prediction, 2);
+                J += (float)Math.Pow(output[i][0] - prediction, 2);
             }
             J /= output.Length;
 
@@ -41,7 +39,7 @@ namespace Linear_regression
             return J;
         }
         
-        public float[] RegressionGradient(float[][] input, float[] output, float[] theta, float lambda)
+        public float[] RegressionGradient(float[][] input, float[][] output, float[] theta, float lambda)
         {
             //without reg
             float[] grad = new float[theta.Length];
@@ -55,7 +53,7 @@ namespace Linear_regression
                 }
                 for (int j = 0; j < theta.Length; j++)
                 {
-                    grad[j] += (output[i] - h) * input[i][j];
+                    grad[j] += (output[i][0] - h) * input[i][j];
                 }
             }
 
@@ -105,18 +103,23 @@ namespace Linear_regression
                 {
                     input[i][j] = (float)Math.Pow(x, j);
                 }
-
                 if (x > maxX)
                     maxX = x;
             }
             sr.Close();
+
+            float[][] outputParam = new float[m][];
+            for (int i = 0; i < m; i++)
+            {
+                outputParam[i] = new float[] { output[i] };
+            }
 
             model.Series.Add(series);
 
             float[] theta = new float[n];
 
             //TODO: Calcular hipotesis pambi
-            GradientDescent.Start(RegressionGradient, RegressionCost,input, output,ref theta, .000125f, 0, 500000);
+            GradientDescent.Start(RegressionGradient, RegressionCost,input, outputParam, ref theta, .005f, 0, 5000);
             //
             int steps = 50;
 
