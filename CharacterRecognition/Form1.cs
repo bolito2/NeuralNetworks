@@ -35,7 +35,7 @@ namespace CharacterRecognition
             graphics = Graphics.FromImage(bitmap);
             pen = new Pen(Color.Black, 20f);
 
-            sw = new StreamWriter("database.txt");      
+            sw = new StreamWriter("database.txt", true);      
         }
 
         bool painting = false;
