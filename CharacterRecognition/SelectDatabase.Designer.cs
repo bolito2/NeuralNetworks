@@ -70,6 +70,8 @@
             this.Controls.Add(this.textBox1);
             this.Name = "SelectDatabase";
             this.Text = "SelectDatabase";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SelectDatabase_FormClosed);
+            this.Load += new System.EventHandler(this.SelectDatabase_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

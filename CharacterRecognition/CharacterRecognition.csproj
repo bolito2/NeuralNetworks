@@ -60,6 +60,12 @@
     <Compile Include="SelectDatabase.Designer.cs">
       <DependentUpon>SelectDatabase.cs</DependentUpon>
     </Compile>
+    <Compile Include="Training.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Training.Designer.cs">
+      <DependentUpon>Training.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -75,6 +81,9 @@
     <EmbeddedResource Include="SelectDatabase.resx">
       <DependentUpon>SelectDatabase.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Training.resx">
+      <DependentUpon>Training.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -87,6 +96,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NeuralNetworks\NeuralNetworks.csproj">
+      <Project>{124e95b5-ba7f-4f72-9f1d-684d2dc6fd42}</Project>
+      <Name>NeuralNetworks</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

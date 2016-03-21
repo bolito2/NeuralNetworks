@@ -45,7 +45,7 @@ namespace CharacterRecognition
         private void button2_Click(object sender, EventArgs e)
         {
             if (textBox1.Text == "")
-                MessageBox.Show("Enter a file path.");
+                MessageBox.Show("Enter a file path.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
                 string data = "";
@@ -58,10 +58,20 @@ namespace CharacterRecognition
                 }
 
                 dataWriter.Write(data);
-                MessageBox.Show("Database loaded sucessfully.");
+                MessageBox.Show("Database loaded sucessfully.", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Hide();
                 form1.Show();
             }
+        }
+
+        private void SelectDatabase_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SelectDatabase_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            form1.Show();
         }
     }
 }

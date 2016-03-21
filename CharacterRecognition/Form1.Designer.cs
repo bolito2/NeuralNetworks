@@ -33,7 +33,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.insertDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
             this.modeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visualizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,6 +40,7 @@
             this.neuralNetworkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trainToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.printWeightsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -85,17 +85,6 @@
             this.insertDatabaseToolStripMenuItem.Text = "Insert Database";
             this.insertDatabaseToolStripMenuItem.Click += new System.EventHandler(this.insertDatabaseToolStripMenuItem_Click);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(5, 452);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(416, 39);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Numero esperado: 8(69%)";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
-            // 
             // modeToolStripMenuItem
             // 
             this.modeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -109,21 +98,21 @@
             // trainToolStripMenuItem
             // 
             this.trainToolStripMenuItem.Name = "trainToolStripMenuItem";
-            this.trainToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.trainToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.trainToolStripMenuItem.Text = "Train";
             this.trainToolStripMenuItem.Click += new System.EventHandler(this.trainToolStripMenuItem_Click);
             // 
             // visualizeToolStripMenuItem
             // 
             this.visualizeToolStripMenuItem.Name = "visualizeToolStripMenuItem";
-            this.visualizeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.visualizeToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.visualizeToolStripMenuItem.Text = "Visualize";
             this.visualizeToolStripMenuItem.Click += new System.EventHandler(this.visualizeToolStripMenuItem_Click);
             // 
             // guessToolStripMenuItem
             // 
             this.guessToolStripMenuItem.Name = "guessToolStripMenuItem";
-            this.guessToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.guessToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.guessToolStripMenuItem.Text = "Guess";
             this.guessToolStripMenuItem.Click += new System.EventHandler(this.guessToolStripMenuItem_Click);
             // 
@@ -141,12 +130,24 @@
             this.trainToolStripMenuItem1.Name = "trainToolStripMenuItem1";
             this.trainToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.trainToolStripMenuItem1.Text = "Train";
+            this.trainToolStripMenuItem1.Click += new System.EventHandler(this.trainToolStripMenuItem1_Click);
             // 
             // printWeightsToolStripMenuItem
             // 
             this.printWeightsToolStripMenuItem.Name = "printWeightsToolStripMenuItem";
             this.printWeightsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.printWeightsToolStripMenuItem.Text = "Print weights";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(5, 452);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(416, 39);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Numero esperado: 8(69%)";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // Form1
             // 
