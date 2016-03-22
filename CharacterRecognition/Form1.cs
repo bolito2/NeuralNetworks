@@ -93,7 +93,7 @@ namespace CharacterRecognition
 
                     for(int j = 0; j < output.Length; j++)
                     {
-                        if (output[j] > maxValue) { maxIndex = j; maxValue = output[j]};
+                        if (output[j] > maxValue) { maxIndex = j; maxValue = output[j]; };
                     }
 
                     label1.Text = "Number is " + maxIndex + "(" + (maxValue * 100).ToString() + "%)";
@@ -294,7 +294,7 @@ namespace CharacterRecognition
             mode = Mode.Training;
             pictureBox1.Image = null;
             label1.Text = "Train with your drawings!";
-            if(sr != null && sr.BaseStream.CanRead)
+            if(sr != null)
                 sr.Close();
             sw = new StreamWriter("database.dat", true);
         }
@@ -330,6 +330,8 @@ namespace CharacterRecognition
             numNumeros = cont;
 
             visualizeNumber(0);
+
+            sr.Close();
         }
         int numNumeros;
 
