@@ -88,11 +88,15 @@ namespace CharacterRecognition
 
                     net.SetInput(input);
                     float[] output = net.FeedForward();
+                    int maxIndex = 0;
+                    float maxValue = 0;
 
                     for(int j = 0; j < output.Length; j++)
                     {
-                        Console.WriteLine("Probability of being " + j + ": " + output[j]);
+                        if (output[j] > maxValue) { maxIndex = j; maxValue = output[j]};
                     }
+
+                    label1.Text = "Number is " + maxIndex + "(" + (maxValue * 100).ToString() + "%)";
                 }
                 else clear();
             }
@@ -277,7 +281,6 @@ namespace CharacterRecognition
             sd.Show();
             sd.setStream(sw);
             sd.setForm(this);
-
             this.Hide();
         }
 
@@ -404,11 +407,8 @@ namespace CharacterRecognition
         {
             Hide();
             Training train = new Training();
-
             train.Ended += endTraining;
-
             train.Samples(getSamples());
-
             if (sw != null)
                 sw.Close();
             if (sr != null)
