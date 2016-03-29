@@ -311,8 +311,10 @@ namespace NeuralNetworks
         }
         public void BackPropagation(float[][] input, float[][] output, float learningRate,float lambda, int maxIter)
         {
+            Console.WriteLine("Empezado gradient descent");
             float[] theta = unrollConnections();
             GradientDescent.Start(gradient, ComputeCost, input, output, ref theta, learningRate, lambda, maxIter);
+            Console.WriteLine("terminado el gradiento descento");
             connections = rollConnections(theta);
         }
 

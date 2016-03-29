@@ -291,12 +291,15 @@ namespace CharacterRecognition
 
         private void trainToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            mode = Mode.Training;
-            pictureBox1.Image = null;
-            label1.Text = "Train with your drawings!";
-            if(sr != null)
-                sr.Close();
-            sw = new StreamWriter("database.dat", true);
+            if (mode != Mode.Training)
+            {
+                mode = Mode.Training;
+                pictureBox1.Image = null;
+                label1.Text = "Train with your drawings!";
+                if (sr != null)
+                    sr.Close();
+                sw = new StreamWriter("database.dat", true);
+            }
         }
 
         StreamReader sr;

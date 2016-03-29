@@ -17,22 +17,53 @@ namespace CharacterRecognition
         public delegate void endTraining();
         public event endTraining Ended;
 
+        delegate void ProgressCallBack(int value, int iter, float cost);
+
         public Training()
         {
             InitializeComponent();
         }
 
-        public void OnProgress(int progress)
+        public void OnProgress(int progress, int iter, float cost)
         {
-            progressBar1.Value = 10 + progress * 9;
+            this.setProgress(progress, iter, cost);
         }
+        private void setProgress(int value, int iter, float cost)
+        {
+            if (this.progressBar1.InvokeRequired)
+            {
+                ProgressCallBack pcb = new ProgressCallBack(setProgress);
+                this.Invoke(pcb, new object[] { value, iter, cost });
+            }
+            else
+            {
+                progressBar1.Value = value;
+                label5.Text = "Training, iteration " + (iter + 1) + "/" + numIter + ", cost = " + cost;
+            }
+        }
+
+        public delegate void endCallBack(float i, float f);
 
         public void OnEnd(float init, float final)
         {
-            MessageBox.Show("Cost gone from " + init + " to " + final, "Results!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.end(init, final);  
+        }
 
-            Ended();
-            Hide();
+        private void end(float init, float final)
+        {
+            if (this.InvokeRequired)
+            {
+                endCallBack callback = new endCallBack(OnEnd);
+                Invoke(callback, new object[] { init, final });
+            }
+            else
+            {
+                label5.Text = "Completed";
+                MessageBox.Show("Cost gone from " + init + " to " + final, "Results!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Ended();
+                Hide();
+            }
         }
 
         NeuralNetwork net;
@@ -64,7 +95,9 @@ namespace CharacterRecognition
             Console.WriteLine(samples);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        int numIter = 0;
+
+        private async void button1_Click(object sender, EventArgs e)
         {
             if(textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "")
             {
@@ -88,7 +121,7 @@ namespace CharacterRecognition
 
                 float lambda = float.Parse(textBox3.Text);
                 float learningRate = float.Parse(textBox1.Text);
-                int numIter = int.Parse(textBox2.Text);
+                numIter = int.Parse(textBox2.Text);
 
                 float[][] input = new float[samples][];
                 float[][] output = new float[samples][];
@@ -98,7 +131,6 @@ namespace CharacterRecognition
                 using(StreamReader sr = new StreamReader("database.dat"))
                 {
                     string[] pixels;
-                    int lastPercent = 0;
 
                     for (int sample = 0; sample < samples; sample++)
                     {
@@ -112,15 +144,11 @@ namespace CharacterRecognition
                         {
                             input[sample][i] = float.Parse(pixels[i + 1]);
                         }
-                        if ((int)Math.Floor((double)(sample * 10) / samples) > lastPercent)
-                        {
-                            lastPercent = (int)Math.Floor((double)(sample * 10) / samples);
-                            Console.WriteLine((lastPercent * 10).ToString() + "%");
-                            progressBar1.Value = lastPercent;
-                        }
                     }
                 }
-                net.BackPropagation(input, output, learningRate, lambda, numIter);
+                label5.Text = "Training, iteration " + 1 + "/" + numIter + ", cost = " + net.ComputeCost(input, output, net.unrollConnections(), lambda);
+                Task backProp = new Task(() => net.BackPropagation(input, output, learningRate, lambda, numIter));
+                backProp.Start();
             }
         }
 
