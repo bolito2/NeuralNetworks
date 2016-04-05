@@ -135,6 +135,7 @@ namespace NeuralNetworks
 
             for(int g = 0; g < grad.Length; g++)
             {
+                grad[g] += lambda * theta[g];
                 grad[g] /= -output.Length;
 
                 //Console.WriteLine("Gradient computed : " + grad[g] + ", Gradient expected : " + check[g]);
@@ -286,23 +287,18 @@ namespace NeuralNetworks
                     J += (float)(output[i][j] * Math.Log(h[j]) + (1 - output[i][j]) * Math.Log(1 - h[j]));
                 }
             }
-            J /= -output.Length;
 
+            J /= -output.Length;
+            //reg
             if (lambda > 0)
             {
-                //reg
                 float reg = 0;
-                for (int l = 0; l < L - 1; l++)
+                
+                for (int t = 0; t < theta.Length; t++)
                 {
-                    for (int i = 0; i < maxNodesPerLayer[l]; i++)
-                    {
-                        for (int j = Convert.ToInt32(nodes[l + 1][0].bias); j < maxNodesPerLayer[l + 1]; j++)
-                        {
-                            reg += (float)Math.Pow(Theta[l][i, j], 2);
-                        }
-                    }
+                    reg += theta[t] * theta[t];
                 }
-                reg *= lambda / (2 * output.Length);
+                reg =  (reg * lambda)/(2 * output.Length);
 
                 J += reg;
             }

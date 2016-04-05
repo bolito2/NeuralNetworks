@@ -78,6 +78,8 @@ namespace CharacterRecognition
                 {
                     float[] input = new float[625];
                     Bitmap small = toSmall(bitmap);
+                    if (small == null)
+                        return;
                     for(int i = 0; i < 25; i++)
                     {
                         for (int j = 0; j < 25; j++)
@@ -240,23 +242,27 @@ namespace CharacterRecognition
             int alto = arriba - abajo;
             int dimension = Math.Max(ancho, alto);
 
-            int vcentro = (int)Math.Floor((double)(arriba - abajo) / 2) + abajo;
-            int hcentro = (int)Math.Floor((double)(derecha - izquierda) / 2) + izquierda;
-
-            Bitmap cut = new Bitmap(dimension, dimension);
-            using (Graphics gra = Graphics.FromImage(cut))
+            if (dimension > 0)
             {
-                gra.DrawImage(big, new Rectangle(0, 0, dimension, dimension), new Rectangle(hcentro - (int)Math.Floor((double)dimension / 2), vcentro - (int)Math.Floor((double)dimension / 2), dimension, dimension), GraphicsUnit.Pixel);
-            }
+                int vcentro = (int)Math.Floor((double)(arriba - abajo) / 2) + abajo;
+                int hcentro = (int)Math.Floor((double)(derecha - izquierda) / 2) + izquierda;
 
-            Bitmap small = new Bitmap(25, 25);
-            using (var g = Graphics.FromImage(small))
-            {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bicubic;
-                g.DrawImage(cut, new Rectangle(0, 0, 25, 25));
-            }
+                Bitmap cut = new Bitmap(dimension, dimension);
+                using (Graphics gra = Graphics.FromImage(cut))
+                {
+                    gra.DrawImage(big, new Rectangle(0, 0, dimension, dimension), new Rectangle(hcentro - (int)Math.Floor((double)dimension / 2), vcentro - (int)Math.Floor((double)dimension / 2), dimension, dimension), GraphicsUnit.Pixel);
+                }
 
-            return small;
+                Bitmap small = new Bitmap(25, 25);
+                using (var g = Graphics.FromImage(small))
+                {
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bicubic;
+                    g.DrawImage(cut, new Rectangle(0, 0, 25, 25));
+                }
+
+                return small;
+            }
+            return null;
         }
 
         private void clear()
@@ -306,7 +312,8 @@ namespace CharacterRecognition
 
         private void visualizeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            sw.Close();
+            if(sw != null)
+                sw.Close();
             sr = new StreamReader("database.dat");
             if (sr.ReadLine() == "")
             {
